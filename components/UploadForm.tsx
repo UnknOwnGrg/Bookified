@@ -9,17 +9,16 @@ import { BookUploadFormValues } from '@/types';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ACCEPTED_PDF_TYPES, ACCEPTED_IMAGE_TYPES } from '@/lib/constants';
+import { ACCEPTED_PDF_TYPES, ACCEPTED_IMAGE_TYPES, DEFAULT_VOICE } from '@/lib/constants';
 import FileUploader from './FIleUploader';
 import VoiceSelector from './VoiceSelector';
 import LoadingOverlay from './LoadingOverlay';
-import { useAuth } from '@clerk/nextjs';
-import { toast } from "sonner";
-import { checkBookExists, createBook, saveBookSegments } from '@/lib/actions/book.actions';
-import { useRouter } from 'next/navigation';
-import { parsePDFFile } from '@/lib/utils';
-import { upload } from '@vercel/blob/client';
-
+import {useAuth, useUser} from "@clerk/nextjs";
+import { toast } from 'sonner';
+import {checkBookExists, createBook, saveBookSegments} from "@/lib/actions/book.actions";
+import {useRouter} from "next/navigation";
+import {parsePDFFile} from "@/lib/utils";
+import {upload} from "@vercel/blob/client";
 
 const UploadForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,7 +56,7 @@ const UploadForm = () => {
             if(existsCheck.exists && existsCheck.book) {
                 toast.info("Book with same title already exists.");
                 form.reset()
-                router.push(`/books/${existsCheck.book.slug}`)
+                router.push(`/books/${book.data.slug}`)
                 return;
             }
 
@@ -115,7 +114,7 @@ const UploadForm = () => {
             if(book.alreadyExists) {
                 toast.info("Book with same title already exists.");
                 form.reset()
-                router.push(`/books/${book.data.slug}`)
+                router.push(`/books/${existsCheck.book.slug}`)
                 return;
             }
 
