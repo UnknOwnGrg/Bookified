@@ -1,10 +1,33 @@
 "use server";
 
 import { connectToDatabase } from "@/database/mongoose";
-import { CreateBook, TextSegment } from "@/types";
+import { CreateBook, IBook, TextSegment } from "@/types";
 import { generateSlug, serializeData } from "../utils";
 import Book from "@/database/models/book.model";
 import BookSegment from "@/database/models/book-segment.model";
+
+//To fetch data form the database
+export const getAllBooks = async (): Promise<{ success: true; books: IBook[] } | { success: false; error: unknown }> => {
+    try {
+        //To connect to database
+        await connectToDatabase();
+
+        const books = await Book.find().sort({ createdAt: -1 }).lean();
+
+        return { 
+            success: true, 
+            books: serializeData(books) as IBook[]
+        }
+
+    }catch (e) {
+        console.error('Error connecting to database', e);
+        return { 
+            success : false , error : e
+        }
+    }
+}
+
+
 
 //To check the book if already exists or not
 export const checkBookExists = async (title : string ) => {
